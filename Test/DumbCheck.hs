@@ -1,10 +1,12 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Test.DumbCheck where
 
-import Control.Applicative (liftA3, ZipList(ZipList,getZipList))
+import Control.Applicative (ZipList(ZipList,getZipList))
 import Control.Monad (replicateM)
 import Data.Foldable (find)
 import Data.List (elemIndex)
-import Data.Monoid (Sum(..), (<>))
+import Data.Monoid (Sum(..))
 
 type Series a = [a]
 
@@ -59,48 +61,29 @@ instance (Serial a, Serial b, Serial c, Serial d) => Serial (a,b,c,d) where
 instance Serial b => Serial (a -> b) where
     series = const <$> series
 
+-- * Testable
+
+class Testable a where
+    test :: a -> Int -> Either String Int
+
+instance Testable (Series Bool) where
+    test ss n = maybe (Right n) (Left . show) $ (elemIndex False . take n) ss
+
+instance (Show a, Serial a) => Testable (Property a) where
+    -- TODO: return number of tests taken
+    test p = test (p, series :: Series a)
+
+instance (Serial a, Show a) => Testable (Property a, Series a) where
+    -- TODO: return number of tests taken
+    test (p,ss) n = maybe (Right n) (Left . show) $ find (not . p) (take n ss)
+
 -- TODO: return number of tests taken
 testBool :: Series Bool -> Int -> Maybe Int
 testBool ss n = (elemIndex False . take n) ss
 
 -- TODO: return number of tests taken
-test :: Serial a => Property a -> Series a -> Int -> Either a Int
-test p ss n = maybe (Right n) Left $ find (not . p) (take n ss)
+testSeries :: Property a -> Series a -> Int -> Either a Int
+testSeries p ss n = maybe (Right n) Left $ find (not . p) (take n ss)
 
--- * Examples
-
-leftIdentity :: (Eq a, Monoid a) => Property a
-leftIdentity x = mempty <> x == x
-
-associativity :: (Eq a, Monoid a) => Property (a,a,a)
-associativity (x,y,z) = x <> y <> z == x <> y <> z
-
-associativity' :: (Eq a, Monoid a)
-               => Series a
-               -> Series a
-               -> Series a
-               -> Series Bool
-associativity' = liftA3 $ \x y z -> x <> y <> z == x <> y <> z
-
-
-composition :: (Eq (f b), Functor f) => Property (f c, a -> b, c -> a)
-composition (x,f,g) = fmap (f . g) x == (fmap f . fmap g) x
-
-composition' :: (Eq (f b), Functor f)
-             => Series (f c)
-             -> Series (a -> b)
-             -> Series (c -> a)
-             -> Series Bool
-composition' = liftA3 $ \x f g -> fmap (f . g) x == (fmap f . fmap g) x
-
-testAssociativity = test associativity (series :: Series (Sum Int, Sum Int, Sum Int)) 1000
-
-testAssociativity' = testBool (associativity' (series :: Series (Sum Int)) series series) 100
-
-testComposition = test composition (series :: Series ((Maybe Int)
-                                            , Int -> Int
-                                            , Int -> Int)) 1000
-
-testComposition' = testBool (composition' (series :: Series (Maybe Int))
-                                          (series :: Series (Int -> Int))
-                                          (series :: Series (Int -> Int))) 100
+testSerial :: Serial a => Property a -> Int -> Either a Int
+testSerial = flip testSeries series
