@@ -1,10 +1,16 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
+#if __GLASGOW_HASKELL__ <= 710
+{-# LANGUAGE DeriveDataTypeable #-}
+#endif
 module Test.Tasty.DumbCheck
   ( testProperty
   , module Test.DumbCheck
   ) where
 
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative (pure)
+#endif
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(..))
 import Data.Typeable (Typeable)
@@ -39,6 +45,7 @@ instance IsOption DumbCheckTests where
   optionHelp = return "Total number of tests to run"
 
 newtype DumbTest = DumbTest { unDumbTest :: Int -> Either String Int }
+                   deriving (Typeable)
 
 instance IsTest DumbTest where
 

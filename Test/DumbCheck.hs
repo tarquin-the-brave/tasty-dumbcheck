@@ -1,7 +1,14 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+#if __GLASGOW_HASKELL__ <= 710
+{-# LANGUAGE DeriveDataTypeable #-}
+#endif
 module Test.DumbCheck where
 
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>), (<*>), pure)
+#endif
 import Control.Applicative (ZipList(ZipList,getZipList))
 import Control.Monad (replicateM)
 import Data.Foldable (find)
@@ -23,7 +30,7 @@ instance Serial Bool where
 
 instance Serial Int where
     -- No `Monad` for `ZipList`
-    series = (0:) . mconcat . getZipList
+    series = (0:) . concat . getZipList
            $ (\x y -> [x,y]) <$> ZipList [1 .. maxBound]
                              <*> ZipList [-1, -2 .. minBound]
 
