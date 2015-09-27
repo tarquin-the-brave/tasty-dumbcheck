@@ -68,29 +68,12 @@ instance (Serial a, Serial b, Serial c, Serial d) => Serial (a,b,c,d) where
 instance Serial b => Serial (a -> b) where
     series = const <$> series
 
--- * Testable
-
-class Testable a where
-    test :: a -> Int -> Either String Int
-
-instance Testable (Series Bool) where
-    test ss n = maybe (Right n) (Left . show) $ (elemIndex False . take n) ss
-
-instance (Show a, Serial a) => Testable (Property a) where
-    -- TODO: return number of tests taken
-    test p = test (p, series :: Series a)
-
-instance (Serial a, Show a) => Testable (Property a, Series a) where
-    -- TODO: return number of tests taken
-    test (p,ss) n = maybe (Right n) (Left . show) $ find (not . p) (take n ss)
+-- * Raw testing
 
 -- TODO: return number of tests taken
-testBool :: Series Bool -> Int -> Maybe Int
-testBool ss n = (elemIndex False . take n) ss
+checkBools :: Series Bool -> Int -> Maybe Int
+checkBools ss n = (elemIndex False . take n) ss
 
 -- TODO: return number of tests taken
-testSeries :: Property a -> Series a -> Int -> Either a Int
-testSeries p ss n = maybe (Right n) Left $ find (not . p) (take n ss)
-
-testSerial :: Serial a => Property a -> Int -> Either a Int
-testSerial = flip testSeries series
+checkSeries :: Property a -> Series a -> Int -> Either a Int
+checkSeries p ss n = maybe (Right n) Left $ find (not . p) (take n ss)

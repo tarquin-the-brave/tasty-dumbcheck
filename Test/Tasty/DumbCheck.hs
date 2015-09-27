@@ -4,10 +4,13 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 #endif
 module Test.Tasty.DumbCheck
-  ( testProperty
+  ( testSeriesProperty
+  , testSerialProperty
+  , testBoolProperty
   , module Test.DumbCheck
   ) where
 
+import Control.Arrow (left)
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure)
 #endif
@@ -35,8 +38,19 @@ import Test.DumbCheck
 newtype DumbCheckTests = DumbCheckTests Int
   deriving (Num, Ord, Eq, Real, Enum, Integral, Typeable)
 
-testProperty :: Testable a => TestName -> a -> TestTree
-testProperty name t = singleTest name (DumbTest $ test t)
+testSeriesProperty
+  :: Show a => TestName -> Property a -> Series a -> TestTree
+testSeriesProperty name p =
+    singleTest name . DumbTest . (left show .) . checkSeries p
+
+testSerialProperty
+  :: (Serial a, Show a) => TestName -> Property a -> TestTree
+testSerialProperty name p = testSeriesProperty name p series
+
+testBoolProperty :: TestName -> Series Bool -> TestTree
+testBoolProperty name ss =
+    singleTest name . DumbTest
+                    $ \n -> maybe (Right n) (Left . show) $ checkBools ss n
 
 instance IsOption DumbCheckTests where
   defaultValue = 1000
