@@ -9,7 +9,7 @@ module Test.DumbCheck where
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>), (<*>), pure)
 #endif
-import Control.Applicative (ZipList(ZipList,getZipList))
+import Control.Applicative (liftA2, liftA3, ZipList(ZipList,getZipList))
 import Control.Monad (replicateM)
 import Data.Foldable (find)
 import Data.List (elemIndex)
@@ -77,3 +77,11 @@ checkBools ss n = (elemIndex False . take n) ss
 -- TODO: return number of tests taken
 checkSeries :: Property a -> Series a -> Int -> Either a Int
 checkSeries p ss n = maybe (Right n) Left $ find (not . p) (take n ss)
+
+-- * Utils
+
+zipA3 :: Applicative f => f a -> f b -> f c -> f (a,b,c)
+zipA3 = liftA3 (,,)
+
+zipA2 :: Applicative f => f a -> f b -> f (a,b)
+zipA2 = liftA2 (,)
