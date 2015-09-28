@@ -1,15 +1,14 @@
-name:                dumbcheck
+name:                tasty-dumbcheck
 version:             0.1
 synopsis:            Dumb property testing
 description:
   Worse is better.
-homepage:            https://github.com/jdnavarro/dumbcheck
-bug-reports:         https://github.com/jdnavarro/dumbcheck/issues
+homepage:            https://github.com/jdnavarro/tasty-dumbcheck
+bug-reports:         https://github.com/jdnavarro/tasty-dumbcheck/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Danny Navarro
 maintainer:          Danny Navarro <j@dannynavarro.net>
-stability:           experimental
 copyright:           Copyright (C) 2015 J. Daniel Navarro
 category:            Web
 build-type:          Simple
@@ -19,7 +18,7 @@ tested-with:         GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.2
 
 source-repository head
   type: git
-  location: git://github.com/jdnavarro/dumbcheck.git
+  location: git://github.com/jdnavarro/tasty-dumbcheck.git
 
 library
   default-language:    Haskell2010
@@ -39,4 +38,4 @@ test-suite tasty
   ghc-options:         -Wall -threaded
   build-depends:       base >= 4.6 && <4.9,
                        tasty >=0.10,
-                       dumbcheck
+                       tasty-dumbcheck
