@@ -7,7 +7,7 @@
 module Test.DumbCheck where
 
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>), (<*>), pure)
+import Control.Applicative (Applicative, (<$>), (<*>), pure)
 #endif
 import Control.Applicative (liftA2, liftA3, ZipList(ZipList,getZipList))
 import Control.Monad (replicateM)
