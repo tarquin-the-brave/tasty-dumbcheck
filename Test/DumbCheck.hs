@@ -1,6 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 #if __GLASGOW_HASKELL__ <= 710
 {-# LANGUAGE DeriveDataTypeable #-}
 #endif
@@ -9,7 +7,7 @@ module Test.DumbCheck where
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative, (<$>), (<*>), pure)
 #endif
-import Control.Applicative (liftA2, liftA3, ZipList(ZipList,getZipList))
+import Control.Applicative (liftA2, liftA3)
 import Control.Monad (replicateM)
 import Data.Foldable (find)
 import Data.List (elemIndex)
@@ -35,9 +33,8 @@ instance Serial Int where
 
 instance Serial Integer where
     -- No `Monad` for `ZipList`
-    series = (0:) . concat . getZipList
-           $ (\x y -> [x,y]) <$> ZipList [1 .. ]
-                             <*> ZipList [-1, -2 .. ]
+    series = (0:) . concat $ zipWith
+             (\x y -> [x,y]) [1 .. ] [-1, -2 .. ]
 
 instance Serial Float where
     series = zipWith encodeFloat series series
