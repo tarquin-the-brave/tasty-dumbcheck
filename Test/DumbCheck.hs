@@ -13,7 +13,7 @@ import Control.Applicative (liftA2, liftA3, ZipList(ZipList,getZipList))
 import Control.Monad (replicateM)
 import Data.Foldable (find)
 import Data.List (elemIndex)
-import Data.Monoid (Sum(..))
+import Data.Monoid (Product(..), Sum(..))
 
 type Series a = [a]
 
@@ -30,9 +30,17 @@ instance Serial Bool where
 
 instance Serial Int where
     -- No `Monad` for `ZipList`
+    series = (0:) . concat $ zipWith
+             (\x y -> [x,y]) [1 .. maxBound] [-1, -2 .. minBound]
+
+instance Serial Integer where
+    -- No `Monad` for `ZipList`
     series = (0:) . concat . getZipList
-           $ (\x y -> [x,y]) <$> ZipList [1 .. maxBound]
-                             <*> ZipList [-1, -2 .. minBound]
+           $ (\x y -> [x,y]) <$> ZipList [1 .. ]
+                             <*> ZipList [-1, -2 .. ]
+
+instance Serial Float where
+    series = zipWith encodeFloat series series
 
 newtype Positive = Positive { unPositive :: Int }
 
@@ -44,8 +52,11 @@ newtype Negative = Negative { unNegative :: Int }
 instance Serial Negative where
     series = Negative <$> [-1,-2 .. minBound]
 
-instance (Enum a, Num a) => Serial (Sum a) where
-    series = Sum <$> [0..]
+instance Serial a => Serial (Sum a) where
+    series = Sum <$> series
+
+instance Serial a => Serial (Product a) where
+    series = Product <$> series
 
 instance Serial Char where
     series = ['\NUL'..]
