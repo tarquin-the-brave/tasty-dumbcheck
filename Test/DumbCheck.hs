@@ -88,8 +88,11 @@ checkSeries p ss n = maybe (Right n) Left $ find (not . p) (take n ss)
 
 -- * Utils
 
-zipA3 :: Applicative f => f a -> f b -> f c -> f (a,b,c)
-zipA3 = liftA3 (,,)
+uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
+uncurry3 f (x,y,z) = f x y z
 
 zipA2 :: Applicative f => f a -> f b -> f (a,b)
 zipA2 = liftA2 (,)
+
+zipA3 :: Applicative f => f a -> f b -> f c -> f (a,b,c)
+zipA3 = liftA3 (,,)
