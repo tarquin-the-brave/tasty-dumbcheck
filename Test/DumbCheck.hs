@@ -62,7 +62,7 @@ instance Serial a => Serial (Maybe a) where
     series = Nothing : (Just <$> series)
 
 instance Serial a => Serial [a] where
-    series = concatMap (`replicateM` series) [0..]
+    series = concatMap (\n -> replicateM n $ take n series) [0..]
 
 instance (Serial a, Serial b) => Serial (a,b) where
     series = (,) <$> series <*> series
