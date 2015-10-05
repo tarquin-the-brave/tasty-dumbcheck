@@ -9,6 +9,7 @@ import Control.Applicative (Applicative, (<$>), (<*>), pure)
 #endif
 import Control.Applicative (liftA2, liftA3)
 import Control.Monad (replicateM)
+import Data.Char (isAlphaNum)
 import Data.Foldable (find)
 import Data.List (elemIndex)
 import Data.Monoid (Product(..), Sum(..))
@@ -57,6 +58,12 @@ instance Serial a => Serial (Product a) where
 
 instance Serial Char where
     series = ['\NUL'..]
+
+data AlphaNum = AlphaNum { unAlphaNum :: Char }
+                deriving (Eq,Show)
+
+instance Serial AlphaNum where
+    series = AlphaNum <$> filter isAlphaNum ['\0'..'\128']
 
 instance Serial a => Serial (Maybe a) where
     series = Nothing : (Just <$> series)
