@@ -1,5 +1,5 @@
 name:                tasty-dumbcheck
-version:             0.1
+version:             0.1.1
 synopsis:            Dumb property testing
 description:
   Worse is better.
@@ -25,7 +25,7 @@ library
   ghc-options:         -Wall
   exposed-modules:     Test.DumbCheck
                        Test.Tasty.DumbCheck
-  build-depends:       base >=4.6 && <4.12,
+  build-depends:       base >=4.6 && <5,
                        tasty
   if impl(ghc < 7.8)
      build-depends:    tagged >=0.7.2
@@ -36,6 +36,6 @@ test-suite tasty
   hs-source-dirs:      tests
   main-is:             tasty.hs
   ghc-options:         -Wall -threaded
-  build-depends:       base >= 4.6 && <4.12,
+  build-depends:       base >= 4.6 && <5,
                        tasty >=0.10,
                        tasty-dumbcheck
